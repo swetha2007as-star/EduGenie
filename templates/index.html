@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>EduGenie - Learning Assistant</title>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>EduGenie</h1>
+
+        <p class="subtitle">
+            Google Gemini Powered Learning Assistant
+        </p>
+
+        <label for="task">Choose a Task</label>
+
+        <select id="task">
+            <option value="qa">QnA</option>
+            <option value="explain">Explain</option>
+            <option value="quiz">Quiz</option>
+            <option value="summarize">Summary</option>
+            <option value="recommend">Recommend Path</option>
+        </select>
+
+        <label for="userInput">
+            Enter your topic or question
+        </label>
+
+        <textarea
+            id="userInput"
+            placeholder="Type your question or topic here..."
+            rows="7"></textarea>
+
+        <button onclick="submitTask()">
+            Submit
+        </button>
+
+        <div id="result">
+            <h3>Result</h3>
+            <p>Your result will appear here.</p>
+        </div>
+
+    </div>
+
+
+    <script>
+
+        async function submitTask() {
+
+            const task =
+                document.getElementById("task").value;
+
+            const input =
+                document.getElementById("userInput").value;
+
+            const result =
+                document.getElementById("result");
+
+
+            // Check empty input
+            if (input.trim() === "") {
+
+                result.innerHTML =
+                    "<h3>Result</h3>" +
+                    "<p>Please enter a topic or question.</p>";
+
+                return;
+            }
+
+
+            // Show loading message
+            result.innerHTML =
+                "<h3>Result</h3>" +
+                "<p>Generating answer...</p>";
+
+
+            try {
+
+                // =========================
+                // QnA
+                // =========================
+
+                if (task === "qa") {
+
+                    const response =
+                        await fetch("/qa", {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                question: input
+                            })
+                        });
+
+
+                    const data =
+                        await response.json();
+
+
+                    result.innerHTML =
+                        "<h3>Answer</h3>" +
+                        "<p>" +
+                        data.answer.replace(/\n/g, "<br>") +
+                        "</p>";
+                }
+
+
+                // =========================
+                // Quiz
+                // =========================
+
+                else if (task === "quiz") {
+
+                    const response =
+                        await fetch("/quiz", {
+
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                topic: input
+                            })
+                        });
+
+
+                    const data =
+                        await response.json();
+
+
+                    result.innerHTML =
+                        "<h3>Quiz</h3>" +
+                        "<p>" +
+                        data.quiz.replace(/\n/g, "<br>") +
+                        "</p>";
+                }
+
+
+                // =========================
+                // Other Tasks
+                // =========================
+
+                else {
+
+                    result.innerHTML =
+                        "<h3>Result</h3>" +
+                        "<p>" +
+                        "This task will be connected in the next step." +
+                        "</p>";
+                }
+
+            }
+
+
+            // =========================
+            // Error Handling
+            // =========================
+
+            catch (error) {
+
+                result.innerHTML =
+                    "<h3>Error</h3>" +
+                    "<p>" +
+                    error.message +
+                    "</p>";
+            }
+
+        }
+
+    </script>
+
+</body>
+
+</html>
